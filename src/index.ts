@@ -55,5 +55,5 @@ export const bool: decoder<boolean> = (input: unknown) => {
 export const at = <T>(
   path: Array<string | number>,
   decodr: decoder<T>,
-): decoder<unknown> => (input: unknown) =>
+): decoder<T> => (input: unknown) =>
   decodr(path.reduce((val: any, pth) => val[pth], input));
