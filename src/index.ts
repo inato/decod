@@ -1,59 +1,129 @@
-type decoder<T> = (input: unknown) => T;
+import { ArrayDecoderError } from "./ArrayDecoderError";
+import { AtDecoderError } from "./AtDecoderError";
+import { EitherDecoderError } from "./EitherDecoderError";
+import { ScalarDecoderError } from "./ScalarDecoderError";
+
+type TDecoder<T> = (input: unknown) => T;
 
 /**
  * @description Try all the given decoders and return the result of the first one not raising an error
- * @param decoders a list of decoder
+ * @param lDecoder the first decoder
+ * @param rDecoder the second decoder
  */
 export const either = <T1, T2>(
-  decoders: [decoder<T1>, decoder<T2>],
-): decoder<T1 | T2> => (input: unknown) => {
-  for (const decodr of decoders) {
+  lDecoder: TDecoder<T1>,
+  rDecoder: TDecoder<T2>,
+): TDecoder<T1 | T2> => (input: unknown) => {
+  try {
+    return lDecoder(input);
+  } catch (le) {
     try {
-      return decodr(input);
-    } catch {
-      continue;
+      return rDecoder(input);
+    } catch (re) {
+      throw new EitherDecoderError(le, re);
     }
   }
-  throw new Error("Tried all given decoders but no one succeed");
 };
 
-export const str: decoder<string> = (input: unknown) => {
+/**
+ * @description decode an unknown value as a string
+ * @param input an unknown value
+ */
+export const string: TDecoder<string> = (input: unknown) => {
   if (typeof input === "string") {
     return input;
   }
-  throw new Error("Expected string");
+  throw new ScalarDecoderError("string", input);
 };
 
-export const nbr: decoder<number> = (input: unknown) => {
+/**
+ * @description decode an unknown value as a number
+ * @param input an unknown value
+ */
+export const number: TDecoder<number> = (input: unknown) => {
   if (typeof input === "number") {
     return input;
   }
-  throw new Error("Expected number");
+  throw new ScalarDecoderError("number", input);
 };
 
-export const nul: decoder<null> = (input: unknown) => {
+/**
+ * @description decode an unknown value as null
+ * @param input an unknown value
+ */
+export const null_: TDecoder<null> = (input: unknown) => {
   if (input === null) {
     return input as null;
   }
-  throw new Error("Expected null");
+  throw new ScalarDecoderError("null", input);
 };
 
-export const undef: decoder<undefined> = (input: unknown) => {
+export const nullable = null_;
+
+/**
+ * @description decode an unknown value as undefined
+ * @param input an unknown value
+ */
+export const undefined_: TDecoder<undefined> = (input: unknown) => {
   if (typeof input === "undefined") {
     return input;
   }
-  throw new Error("Expected undefined");
+  throw new ScalarDecoderError("undefined", input);
 };
 
-export const bool: decoder<boolean> = (input: unknown) => {
+export const undef = undefined_;
+
+/**
+ * @description decode an unknown value as undefined or null
+ * @param input an unknown value
+ */
+export const optional = either(null_, undefined_);
+
+/**
+ * @description decode an unknown value as boolean
+ * @param input an unknown value
+ */
+export const boolean: TDecoder<boolean> = (input: unknown) => {
   if (typeof input === "boolean") {
     return input;
   }
-  throw new Error("Expected boolean");
+  throw new ScalarDecoderError("boolean", input);
 };
 
+/**
+ * @description decode an unknown value an object path
+ * @param path a string array
+ * @param decoder a decoder
+ */
 export const at = <T>(
   path: Array<string | number>,
-  decodr: decoder<T>,
-): decoder<T> => (input: unknown) =>
-  decodr(path.reduce((val: any, pth) => val[pth], input));
+  decoder: TDecoder<T>,
+): TDecoder<T> => (input: unknown) => {
+  try {
+    if (path.length) {
+      return at(path.slice(1), decoder)((input as any)[path[0]]);
+    }
+  } catch (e) {
+    throw new AtDecoderError(path[0], e);
+  }
+  return decoder(input);
+};
+
+/**
+ * @description decode an unknown value an array
+ * @param decoder a decoder
+ */
+export const array = <T>(decoder: TDecoder<T>): TDecoder<T[]> => (
+  input: unknown,
+): T[] => {
+  if (Array.isArray(input)) {
+    return input.map((value, index) => {
+      try {
+        return decoder(value);
+      } catch (e) {
+        throw new ArrayDecoderError(index, e);
+      }
+    });
+  }
+  throw new ScalarDecoderError("array", input);
+};
