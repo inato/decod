@@ -1,2 +1,6 @@
 src
 !lib
+.prettierrc.json
+tslint.json
+coverage
+lib/*.test.*
