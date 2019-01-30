@@ -41,6 +41,30 @@ describe("Decod", () => {
     expect(decod.undefined_(undefined)).toEqual(undefined);
   });
 
+  it("Should try to decode", () => {
+    expect(() => decod.try_(decod.string)("32")).not.toThrowError();
+    expect(() => decod.try_(decod.string)(32)).not.toThrowError();
+    expect(decod.try_(decod.string)("32")).toEqual("32");
+  });
+
+  it("Should decode assoc", () => {
+    const decoder = decod.assoc(
+      decod.string,
+      decod.either(decod.string, decod.number),
+    );
+    expect(() => decoder({ a: "b" })).not.toThrowError();
+    expect(decoder({ a: "one", b: 1 })).toEqual([
+      {
+        key: "a",
+        value: "one",
+      },
+      {
+        key: "b",
+        value: 1,
+      },
+    ]);
+  });
+
   it("Should decode objects", () => {
     expect(() =>
       decod.at(["a", "b", 1, 2], decod.string)({ a: { b: { 1: { 2: "" } } } }),

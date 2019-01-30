@@ -43,15 +43,15 @@
   },
   "homepage": "https://github.com/vanwalj/decod#readme",
   "devDependencies": {
-    "@types/jest": "^23.3.12",
+    "@types/jest": "^23.3.13",
     "husky": "^1.3.1",
-    "jest": "^23.6.0",
-    "lint-staged": "^8.1.0",
-    "prettier": "^1.15.3",
+    "jest": "^24.0.0",
+    "lint-staged": "^8.1.1",
+    "prettier": "^1.16.2",
     "rimraf": "^2.6.3",
     "ts-jest": "^23.10.5",
-    "tslint": "^5.12.0",
+    "tslint": "^5.12.1",
     "tslint-config-prettier": "^1.17.0",
-    "typescript": "^3.2.2"
+    "typescript": "^3.2.4"
   }
 }

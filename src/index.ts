@@ -127,3 +127,24 @@ export const array = <T>(decoder: TDecoder<T>): TDecoder<T[]> => (
   }
   throw new ScalarDecoderError("array", input);
 };
+
+/**
+ * @description decode an unknown value an array
+ * @param decoder a decoder
+ */
+export function try_<T>(decoder: TDecoder<T>): TDecoder<T | undefined>;
+export function try_<T>(decoder: TDecoder<T>, defaultValue: T): TDecoder<T>;
+export function try_<T>(decoder: TDecoder<T>, defaultValue?: any): TDecoder<T> {
+  return either(decoder, _ => defaultValue);
+}
+
+export const attempt = try_;
+
+export const assoc = <K, V>(
+  keyDecoder: TDecoder<K>,
+  valueDecoder: TDecoder<V>,
+) => (input: unknown) =>
+  Object.keys(input as any).map(key => ({
+    key: keyDecoder(key),
+    value: valueDecoder((input as any)[key]),
+  }));
