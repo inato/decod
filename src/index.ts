@@ -96,7 +96,7 @@ export const boolean: TDecoder<boolean> = (input: unknown) => {
  * @param decoder a decoder
  */
 export const at = <T>(
-  path: Array<string | number>,
+  path: Array<string | number> | string,
   decoder: TDecoder<T>,
 ): TDecoder<T> => (input: unknown) => {
   try {
