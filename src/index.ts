@@ -58,8 +58,6 @@ export const null_: TDecoder<null> = (input: unknown) => {
   throw new ScalarDecoderError("null", input);
 };
 
-export const nullable = null_;
-
 /**
  * @description decode an unknown value as undefined
  * @param input an unknown value
@@ -71,13 +69,18 @@ export const undefined_: TDecoder<undefined> = (input: unknown) => {
   throw new ScalarDecoderError("undefined", input);
 };
 
-export const undef = undefined_;
-
 /**
- * @description decode an unknown value as undefined or null
+ * @description decode an unknown value as T, undefined or null
  * @param input an unknown value
  */
-export const optional = either(null_, undefined_);
+export const optional = <T>(decoder: TDecoder<T>) =>
+  either(decoder, either(null_, undefined_));
+
+/**
+ * @description decode an unknown value as T or null
+ * @param input an unknown value
+ */
+export const nullable = <T>(decoder: TDecoder<T>) => either(decoder, null_);
 
 /**
  * @description decode an unknown value as boolean

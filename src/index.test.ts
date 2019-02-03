@@ -33,6 +33,27 @@ describe("Decod", () => {
     expect(decod.null_(null)).toEqual(null);
   });
 
+  it("Should decode nullables", () => {
+    expect(() => decod.nullable(decod.string)(null)).not.toThrowError();
+    expect(() => decod.nullable(decod.string)("null")).not.toThrowError();
+    expect(() => decod.nullable(decod.string)(32)).toThrowError(
+      `decoders both failed\n\tleft: ScalarDecoderError: expected type: "string" but got type: "number" for value: "32"\n\tright: ScalarDecoderError: expected type: "null" but got type: "number" for value: "32"`,
+    );
+    expect(decod.nullable(decod.string)("null")).toBe("null");
+    expect(decod.nullable(decod.string)(null)).toBe(null);
+  });
+
+  it("Should decode optionals", () => {
+    expect(() => decod.optional(decod.string)(null)).not.toThrowError();
+    expect(() => decod.optional(decod.string)("null")).not.toThrowError();
+    expect(() => decod.optional(decod.string)(32)).toThrowError(
+      `decoders both failed\n\tleft: ScalarDecoderError: expected type: \"string\" but got type: \"number\" for value: \"32\"\n\tright: EitherDecoderError: decoders both failed\n\tleft: ScalarDecoderError: expected type: \"null\" but got type: \"number\" for value: \"32\"\n\tright: ScalarDecoderError: expected type: \"undefined\" but got type: \"number\" for value: \"32\"`,
+    );
+    expect(decod.optional(decod.string)("null")).toBe("null");
+    expect(decod.optional(decod.string)(null)).toBe(null);
+    expect(decod.optional(decod.string)(undefined)).toBe(undefined);
+  });
+
   it("Should decode undefined", () => {
     expect(() => decod.undefined_(undefined)).not.toThrowError();
     expect(() => decod.undefined_("32")).toThrowError(
