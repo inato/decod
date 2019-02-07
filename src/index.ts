@@ -1,10 +1,13 @@
-import { ArrayDecoderError } from "./ArrayDecoderError";
-import { AtDecoderError } from "./AtDecoderError";
-import { EitherDecoderError } from "./EitherDecoderError";
-import { ScalarDecoderError } from "./ScalarDecoderError";
-import { StrictDecoderError } from "./StrictDecoderError";
+import {
+  ArrayDecoderError,
+  AtDecoderError,
+  EitherDecoderError,
+  PropsDecoderError,
+  ScalarDecoderError,
+  StrictDecoderError,
+} from "./errors";
 
-type TDecoder<T> = (input: unknown) => T;
+type Decoder<T> = (input: unknown) => T;
 
 /**
  * @description Try all the given decoders and return the result of the first one not raising an error
@@ -12,9 +15,9 @@ type TDecoder<T> = (input: unknown) => T;
  * @param rDecoder the second decoder
  */
 export const either = <T1, T2>(
-  lDecoder: TDecoder<T1>,
-  rDecoder: TDecoder<T2>,
-): TDecoder<T1 | T2> => (input: unknown) => {
+  lDecoder: Decoder<T1>,
+  rDecoder: Decoder<T2>,
+): Decoder<T1 | T2> => (input: unknown) => {
   try {
     return lDecoder(input);
   } catch (le) {
@@ -30,7 +33,7 @@ export const either = <T1, T2>(
  * @description decode an unknown value as a string
  * @param input an unknown value
  */
-export const string: TDecoder<string> = (input: unknown) => {
+export const string: Decoder<string> = (input: unknown) => {
   if (typeof input === "string") {
     return input;
   }
@@ -41,7 +44,7 @@ export const string: TDecoder<string> = (input: unknown) => {
  * @description decode an unknown value as a string
  * @param input an unknown value
  */
-export const is = <T>(expectedValue: T): TDecoder<T> => (input: unknown) => {
+export const is = <T>(expectedValue: T): Decoder<T> => (input: unknown) => {
   if (input === expectedValue) {
     return input as any;
   }
@@ -52,7 +55,7 @@ export const is = <T>(expectedValue: T): TDecoder<T> => (input: unknown) => {
  * @description decode an unknown value as a number
  * @param input an unknown value
  */
-export const number: TDecoder<number> = (input: unknown) => {
+export const number: Decoder<number> = (input: unknown) => {
   if (typeof input === "number") {
     return input;
   }
@@ -63,7 +66,7 @@ export const number: TDecoder<number> = (input: unknown) => {
  * @description decode an unknown value as null
  * @param input an unknown value
  */
-export const null_: TDecoder<null> = (input: unknown) => {
+export const null_: Decoder<null> = (input: unknown) => {
   if (input === null) {
     return input as null;
   }
@@ -74,7 +77,7 @@ export const null_: TDecoder<null> = (input: unknown) => {
  * @description decode an unknown value as undefined
  * @param input an unknown value
  */
-export const undefined_: TDecoder<undefined> = (input: unknown) => {
+export const undefined_: Decoder<undefined> = (input: unknown) => {
   if (typeof input === "undefined") {
     return input;
   }
@@ -85,20 +88,20 @@ export const undefined_: TDecoder<undefined> = (input: unknown) => {
  * @description decode an unknown value as T, undefined or null
  * @param input an unknown value
  */
-export const optional = <T>(decoder: TDecoder<T>) =>
+export const optional = <T>(decoder: Decoder<T>) =>
   either(decoder, either(null_, undefined_));
 
 /**
  * @description decode an unknown value as T or null
  * @param input an unknown value
  */
-export const nullable = <T>(decoder: TDecoder<T>) => either(decoder, null_);
+export const nullable = <T>(decoder: Decoder<T>) => either(decoder, null_);
 
 /**
  * @description decode an unknown value as boolean
  * @param input an unknown value
  */
-export const boolean: TDecoder<boolean> = (input: unknown) => {
+export const boolean: Decoder<boolean> = (input: unknown) => {
   if (typeof input === "boolean") {
     return input;
   }
@@ -112,8 +115,8 @@ export const boolean: TDecoder<boolean> = (input: unknown) => {
  */
 export const at = <T>(
   path: Array<string | number> | string,
-  decoder: TDecoder<T>,
-): TDecoder<T> => (input: unknown) => {
+  decoder: Decoder<T>,
+): Decoder<T> => (input: unknown) => {
   try {
     if (path.length) {
       return at(path.slice(1), decoder)((input as any)[path[0]]);
@@ -128,7 +131,7 @@ export const at = <T>(
  * @description decode an unknown value an array
  * @param decoder a decoder
  */
-export const array = <T>(decoder: TDecoder<T>): TDecoder<T[]> => (
+export const array = <T>(decoder: Decoder<T>): Decoder<T[]> => (
   input: unknown,
 ): T[] => {
   if (Array.isArray(input)) {
@@ -147,17 +150,17 @@ export const array = <T>(decoder: TDecoder<T>): TDecoder<T[]> => (
  * @description decode an unknown value an array
  * @param decoder a decoder
  */
-export function try_<T>(decoder: TDecoder<T>): TDecoder<T | undefined>;
-export function try_<T>(decoder: TDecoder<T>, defaultValue: T): TDecoder<T>;
-export function try_<T>(decoder: TDecoder<T>, defaultValue?: any): TDecoder<T> {
+export function try_<T>(decoder: Decoder<T>): Decoder<T | undefined>;
+export function try_<T>(decoder: Decoder<T>, defaultValue: T): Decoder<T>;
+export function try_<T>(decoder: Decoder<T>, defaultValue?: any): Decoder<T> {
   return either(decoder, _ => defaultValue);
 }
 
 export const attempt = try_;
 
 export const assoc = <K, V, T extends { [key: string]: unknown }>(
-  keyDecoder: TDecoder<K>,
-  valueDecoder: TDecoder<V>,
+  keyDecoder: Decoder<K>,
+  valueDecoder: Decoder<V>,
 ) => (input: T) =>
   Object.keys(input).map(key => ({
     key: keyDecoder(key),
@@ -169,14 +172,18 @@ export const assoc = <K, V, T extends { [key: string]: unknown }>(
  * @param obj an object with decoders as values
  * @param input
  */
-export const props = <T extends { [key: string]: TDecoder<any> }>(obj: T) => (
+export const props = <T extends { [key: string]: Decoder<any> }>(obj: T) => (
   input: unknown,
-): { [P in keyof T]: ReturnType<T[P]> } => {
-  const keys = Object.keys(obj);
-  return keys.reduce(
+): { [P in keyof T]: ReturnType<T[P]> } =>
+  Object.keys(obj).reduce(
     (acc, key) => {
-      return { ...acc, [key]: obj[key](input) };
+      try {
+        const decoded = obj[key](input);
+
+        return { ...acc, [key]: decoded };
+      } catch (e) {
+        throw new PropsDecoderError(key, e);
+      }
     },
     {} as { [P in keyof T]: ReturnType<T[P]> },
   );
-};
