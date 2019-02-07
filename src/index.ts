@@ -155,11 +155,28 @@ export function try_<T>(decoder: TDecoder<T>, defaultValue?: any): TDecoder<T> {
 
 export const attempt = try_;
 
-export const assoc = <K, V>(
+export const assoc = <K, V, T extends { [key: string]: unknown }>(
   keyDecoder: TDecoder<K>,
   valueDecoder: TDecoder<V>,
-) => (input: unknown) =>
-  Object.keys(input as any).map(key => ({
+) => (input: T) =>
+  Object.keys(input).map(key => ({
     key: keyDecoder(key),
-    value: valueDecoder((input as any)[key]),
+    value: valueDecoder(input[key]),
   }));
+
+/**
+ * @description a helper to decode objects
+ * @param obj an object with decoders as values
+ * @param input
+ */
+export const props = <T extends { [key: string]: TDecoder<any> }>(obj: T) => (
+  input: unknown,
+): { [P in keyof T]: ReturnType<T[P]> } => {
+  const keys = Object.keys(obj);
+  return keys.reduce(
+    (acc, key) => {
+      return { ...acc, [key]: obj[key](input) };
+    },
+    {} as { [P in keyof T]: ReturnType<T[P]> },
+  );
+};

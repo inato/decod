@@ -41,6 +41,19 @@ describe("Decod", () => {
     expect(decod.null_(null)).toEqual(null);
   });
 
+  it("Should use the props helper", () => {
+    expect(() => decod.props({})("hello")).not.toThrowError();
+    expect(() => decod.props({ val: decod.number })("hello")).toThrowError(
+      `expected type: "number" but got type: "string" for value: "hello"`,
+    );
+    expect(
+      decod.props({
+        one: decod.at(["one"], decod.string),
+        two: decod.at(["two"], decod.number),
+      })({ one: "one", two: 2 }),
+    ).toEqual({ one: "one", two: 2 });
+  });
+
   it("Should decode nullables", () => {
     expect(() => decod.nullable(decod.string)(null)).not.toThrowError();
     expect(() => decod.nullable(decod.string)("null")).not.toThrowError();
