@@ -9,6 +9,14 @@ describe("Decod", () => {
     expect(decod.string("Hello")).toEqual("Hello");
   });
 
+  it("Should decode strict values", () => {
+    expect(() => decod.is("Hello")("Hello")).not.toThrowError();
+    expect(() => decod.is(12)("12")).toThrowError(
+      `expected value: "12" of type: "number" but got value: "12" of type: "string"`,
+    );
+    expect(decod.is("Hello")("Hello")).toEqual("Hello");
+  });
+
   it("Should decode numbers", () => {
     expect(() => decod.number(12)).not.toThrowError();
     expect(() => decod.number("12")).toThrowError(

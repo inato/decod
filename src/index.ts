@@ -2,6 +2,7 @@ import { ArrayDecoderError } from "./ArrayDecoderError";
 import { AtDecoderError } from "./AtDecoderError";
 import { EitherDecoderError } from "./EitherDecoderError";
 import { ScalarDecoderError } from "./ScalarDecoderError";
+import { StrictDecoderError } from "./StrictDecoderError";
 
 type TDecoder<T> = (input: unknown) => T;
 
@@ -34,6 +35,17 @@ export const string: TDecoder<string> = (input: unknown) => {
     return input;
   }
   throw new ScalarDecoderError("string", input);
+};
+
+/**
+ * @description decode an unknown value as a string
+ * @param input an unknown value
+ */
+export const is = <T>(expectedValue: T): TDecoder<T> => (input: unknown) => {
+  if (input === expectedValue) {
+    return input as any;
+  }
+  throw new StrictDecoderError(expectedValue, input);
 };
 
 /**
