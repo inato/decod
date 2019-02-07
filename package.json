@@ -6,9 +6,9 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "jest",
-    "build": " tsc",
+    "build": "tsc",
     "clean": "rimraf lib",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "husky": {
     "hooks": {
