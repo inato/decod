@@ -58,7 +58,7 @@ describe("Decod", () => {
     expect(() => decod.nullable(decod.string)(null)).not.toThrowError();
     expect(() => decod.nullable(decod.string)("null")).not.toThrowError();
     expect(() => decod.nullable(decod.string)(32)).toThrowError(
-      `decoders both failed\n\tleft: ScalarDecoderError: expected type: "string" but got type: "number" for value: "32"\n\tright: ScalarDecoderError: expected type: "null" but got type: "number" for value: "32"`,
+      `all decoders failed\n\tScalarDecoderError: expected type: "string" but got type: "number" for value: "32"\n\tScalarDecoderError: expected type: "null" but got type: "number" for value: "32"`,
     );
     expect(decod.nullable(decod.string)("null")).toBe("null");
     expect(decod.nullable(decod.string)(null)).toBe(null);
@@ -68,7 +68,7 @@ describe("Decod", () => {
     expect(() => decod.optional(decod.string)(null)).not.toThrowError();
     expect(() => decod.optional(decod.string)("null")).not.toThrowError();
     expect(() => decod.optional(decod.string)(32)).toThrowError(
-      `decoders both failed\n\tleft: ScalarDecoderError: expected type: \"string\" but got type: \"number\" for value: \"32\"\n\tright: EitherDecoderError: decoders both failed\n\tleft: ScalarDecoderError: expected type: \"null\" but got type: \"number\" for value: \"32\"\n\tright: ScalarDecoderError: expected type: \"undefined\" but got type: \"number\" for value: \"32\"`,
+      `all decoders failed\n\tScalarDecoderError: expected type: \"string\" but got type: \"number\" for value: \"32\"\n\tScalarDecoderError: expected type: \"null\" but got type: \"number\" for value: \"32\"\n\tScalarDecoderError: expected type: \"undefined\" but got type: \"number\" for value: \"32\"`,
     );
     expect(decod.optional(decod.string)("null")).toBe("null");
     expect(decod.optional(decod.string)(null)).toBe(null);
@@ -90,10 +90,8 @@ describe("Decod", () => {
   });
 
   it("Should decode assoc", () => {
-    const decoder = decod.assoc(
-      decod.string,
-      decod.either(decod.string, decod.number),
-    );
+    const valueDecoder = decod.oneOf(decod.string, decod.number);
+    const decoder = decod.assoc(decod.string, valueDecoder);
     expect(() => decoder({ a: "b" })).not.toThrowError();
     expect(decoder({ a: "one", b: 1 })).toEqual([
       {
@@ -134,13 +132,13 @@ describe("Decod", () => {
     ]);
   });
 
-  it("Should decode either things", () => {
+  it("Should decode one of things", () => {
     expect(() =>
-      decod.either(decod.string, decod.boolean)(true),
+      decod.oneOf(decod.string, decod.boolean)(true),
     ).not.toThrowError();
-    expect(() => decod.either(decod.string, decod.boolean)(32)).toThrowError(
-      `decoders both failed\n\tleft: ScalarDecoderError: expected type: "string" but got type: "number" for value: "32"\n\tright: ScalarDecoderError: expected type: "boolean" but got type: "number" for value: "32"`,
+    expect(() => decod.oneOf(decod.string, decod.boolean)(32)).toThrowError(
+      `all decoders failed\n\tScalarDecoderError: expected type: "string" but got type: "number" for value: "32"\n\tScalarDecoderError: expected type: "boolean" but got type: "number" for value: "32"`,
     );
-    expect(decod.either(decod.string, decod.boolean)(true)).toEqual(true);
+    expect(decod.oneOf(decod.string, decod.boolean)(true)).toEqual(true);
   });
 });

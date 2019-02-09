@@ -1,7 +1,7 @@
 import {
   ArrayDecoderError,
   AtDecoderError,
-  EitherDecoderError,
+  OneOfDecoderError,
   PropsDecoderError,
   ScalarDecoderError,
   StrictDecoderError,
@@ -14,20 +14,37 @@ type Decoder<T> = (input: unknown) => T;
  * @param lDecoder the first decoder
  * @param rDecoder the second decoder
  */
-export const either = <T1, T2>(
-  lDecoder: Decoder<T1>,
-  rDecoder: Decoder<T2>,
-): Decoder<T1 | T2> => (input: unknown) => {
-  try {
-    return lDecoder(input);
-  } catch (le) {
-    try {
-      return rDecoder(input);
-    } catch (re) {
-      throw new EitherDecoderError(le, re);
+// prettier-ignore
+export function oneOf<D1>(d1: Decoder<D1>): Decoder<D1>;
+// prettier-ignore
+export function oneOf<D1, D2>(d1: Decoder<D1>, d2: Decoder<D2>): Decoder<D1 | D2>;
+// prettier-ignore
+export function oneOf<D1, D2, D3>(d1: Decoder<D1>, d2: Decoder<D2>, d3: Decoder<D3>): Decoder<D1 | D2 | D3>;
+// prettier-ignore
+export function oneOf<D1, D2, D3, D4>(d1: Decoder<D1>, d2: Decoder<D2>, d3: Decoder<D3>, d4: Decoder<D4>): Decoder<D1 | D2 | D3 | D4>;
+// prettier-ignore
+export function oneOf<D1, D2, D3, D4, D5>(d1: Decoder<D1>, d2: Decoder<D2>, d3: Decoder<D3>, d4: Decoder<D4>, d5: Decoder<D5>): Decoder<D1 | D2 | D3 | D4 | D5>;
+// prettier-ignore
+export function oneOf<D1, D2, D3, D4, D5, D6>(d1: Decoder<D1>, d2: Decoder<D2>, d3: Decoder<D3>, d4: Decoder<D4>, d5: Decoder<D5>, d6: Decoder<D6>): Decoder<D1 | D2 | D3 | D4 | D5 | D6>;
+// prettier-ignore
+export function oneOf<D1, D2, D3, D4, D5, D6, D7>(d1: Decoder<D1>, d2: Decoder<D2>, d3: Decoder<D3>, d4: Decoder<D4>, d5: Decoder<D5>, d6: Decoder<D6>, d7: Decoder<D7>): Decoder<D1 | D2 | D3 | D4 | D5 | D6 | D7>;
+// prettier-ignore
+export function oneOf<D1, D2, D3, D4, D5, D6, D7, D8>(d1: Decoder<D1>, d2: Decoder<D2>, d3: Decoder<D3>, d4: Decoder<D4>, d5: Decoder<D5>, d6: Decoder<D6>, d7: Decoder<D7>, d8: Decoder<D8>): Decoder<D1 | D2 | D3 | D4 | D5 | D6 | D7 | D8>;
+// prettier-ignore
+export function oneOf<D1, D2, D3, D4, D5, D6, D7, D8, D9>(d1: Decoder<D1>, d2: Decoder<D2>, d3: Decoder<D3>, d4: Decoder<D4>, d5: Decoder<D5>, d6: Decoder<D6>, d7: Decoder<D7>, d8: Decoder<D8>, d9: Decoder<D9>): Decoder<D1 | D2 | D3 | D4 | D5 | D6 | D7 | D8 | D9>;
+export function oneOf<T>(...decoders: Array<Decoder<T>>) {
+  return (input: unknown) => {
+    const errors: Error[] = [];
+    for (const decoder of decoders) {
+      try {
+        return decoder(input);
+      } catch (e) {
+        errors.push(e);
+      }
     }
-  }
-};
+    throw new OneOfDecoderError(errors);
+  };
+}
 
 /**
  * @description decode an unknown value as a string
@@ -89,13 +106,13 @@ export const undefined_: Decoder<undefined> = (input: unknown) => {
  * @param input an unknown value
  */
 export const optional = <T>(decoder: Decoder<T>) =>
-  either(decoder, either(null_, undefined_));
+  oneOf(decoder, null_, undefined_);
 
 /**
  * @description decode an unknown value as T or null
  * @param input an unknown value
  */
-export const nullable = <T>(decoder: Decoder<T>) => either(decoder, null_);
+export const nullable = <T>(decoder: Decoder<T>) => oneOf(decoder, null_);
 
 /**
  * @description decode an unknown value as boolean
@@ -153,7 +170,7 @@ export const array = <T>(decoder: Decoder<T>): Decoder<T[]> => (
 export function try_<T>(decoder: Decoder<T>): Decoder<T | undefined>;
 export function try_<T>(decoder: Decoder<T>, defaultValue: T): Decoder<T>;
 export function try_<T>(decoder: Decoder<T>, defaultValue?: any): Decoder<T> {
-  return either(decoder, _ => defaultValue);
+  return oneOf(decoder, (_: unknown) => defaultValue);
 }
 
 export const attempt = try_;

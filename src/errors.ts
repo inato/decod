@@ -2,10 +2,12 @@ export class DecoderError extends Error {
   public name = "DecoderError";
 }
 
-export class EitherDecoderError extends DecoderError {
-  public name = "EitherDecoderError";
-  constructor(lError: Error, rError: Error) {
-    super(`decoders both failed\n\tleft: ${lError}\n\tright: ${rError}`);
+export class OneOfDecoderError extends DecoderError {
+  public name = "OneOfDecoderError";
+  constructor(errors: Error[]) {
+    super(
+      `all decoders failed\n\t${errors.map(error => `${error}`).join("\n\t")}`,
+    );
   }
 }
 
