@@ -1,5 +1,6 @@
 src
-!lib
+!esm
+!umd
 .prettierrc.json
 tslint.json
 coverage

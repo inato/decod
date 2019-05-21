@@ -1,4 +1,4 @@
-import * as decod from "./";
+import * as decod from "./index";
 
 describe("Decod", () => {
   it("Should decode strings", () => {
