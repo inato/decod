@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vanwalj/decod.git"
+    "url": "git+https://github.com/inato/decod.git"
   },
   "keywords": [
     "Typescript",
@@ -42,11 +42,12 @@
     "values"
   ],
   "author": "Jordan Van Walleghem <j.vanwall@gmail.com>",
+  "contributors": [],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/vanwalj/decod/issues"
+    "url": "https://github.com/inato/decod/issues"
   },
-  "homepage": "https://github.com/vanwalj/decod#readme",
+  "homepage": "https://github.com/inato/decod#readme",
   "devDependencies": {
     "@types/jest": "^24.0.13",
     "husky": "^2.3.0",
