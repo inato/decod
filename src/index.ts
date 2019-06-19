@@ -14,6 +14,7 @@ export {
   at,
   attempt,
   boolean,
+  date,
   is,
   null_,
   nullable,
