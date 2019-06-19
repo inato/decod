@@ -33,6 +33,15 @@ describe("Decod", () => {
     expect(decod.boolean(false)).toEqual(false);
   });
 
+  it("Should decode dates", () => {
+    expect(() => decod.date(new Date())).not.toThrowError();
+    expect(() => decod.date(32)).toThrowError(
+      `expected type: "Date" but got type: "number" for value: "32"`,
+    );
+    const date = new Date();
+    expect(decod.date(date)).toEqual(date);
+  });
+
   it("Should decode nulls", () => {
     expect(() => decod.null_(null)).not.toThrowError();
     expect(() => decod.null_("32")).toThrowError(

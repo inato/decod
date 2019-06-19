@@ -126,6 +126,17 @@ export const boolean: Decoder<boolean> = (input: unknown) => {
 };
 
 /**
+ * @description decode an unknown value as Date
+ * @param input an unknown value
+ */
+export const date: Decoder<Date> = (input: unknown) => {
+  if (input instanceof Date) {
+    return input;
+  }
+  throw new ScalarDecoderError("Date", input);
+};
+
+/**
  * @description decode an unknown value an object path
  * @param path a string array
  * @param decoder a decoder
