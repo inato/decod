@@ -1,6 +1,6 @@
 {
   "name": "decod",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "Decode unknwon typescript values",
   "main": "umd/index.js",
   "types": "umd/index.d.ts",
