@@ -49,18 +49,18 @@ import * as decod from "decod";
 const decodeNullableString = decod.either(decod.string, decod.null_);
 const decodeOptionalNumber = decod.either(decod.number, decod.undefined_);
 
-const decodeUser = (input: unknown) => ({
-  firstName: decod.at(["firstName"], decod.string)(input),
-  comments: decod.at(["comments"], decod.array(decod.string))(input),
-  email: decod.at(["email"], decodeNullableString)(input),
-  age: decod.at(["age"], decodeOptionalNumber)(input),
-  age: decod.at(["isCool"], decod.bool)(input),
-});
+const decodeUser = (input: unknown) => decod.props({
+  firstName: decod.at(["firstName"], decod.string),
+  comments: decod.at(["comments"], decod.array(decod.string)),
+  email: decod.at(["email"], decodeNullableString),
+  age: decod.at(["age"], decodeOptionalNumber),
+  age: decod.at(["isCool"], decod.bool),
+})(input);
 
-const decodeResult = (input: unknown) => ({
-  id: decod.at(["id"], decod.string)(input),
-  user: decod.at(["user"], decodeUser)(input),
-});
+const decodeResult = (input: unknown) => decod.props({
+  id: decod.at(["id"], decod.string),
+  user: decod.at(["user"], decodeUser),
+})(input);
 
 export type TResult = ReturnType<typeof decodeResult>;
 
