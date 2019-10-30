@@ -234,7 +234,7 @@ export function try_<T>(decoder: Decoder<T>, defaultValue?: any): Decoder<T> {
 }
 
 /**
- * Synonim for {@link try_}
+ * Synonym for {@link try_}
  *
  * @category Decoder combinators
  */
