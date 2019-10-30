@@ -57,10 +57,11 @@ describe("Decod", () => {
     );
     expect(
       decod.props({
-        one: decod.at(["one"], decod.string),
-        two: decod.at(["two"], decod.number),
-      })({ one: "one", two: 2 }),
-    ).toEqual({ one: "one", two: 2 });
+        one: decod.at("one", decod.string),
+        two: decod.at(["two", "nested"], decod.number),
+        three: decod.at(["three", 1], decod.string),
+      })({ one: "one", two: { nested: 2 }, three: ["n/a", "three"] }),
+    ).toEqual({ one: "one", two: 2, three: "three" });
   });
 
   it("Should decode nullables", () => {

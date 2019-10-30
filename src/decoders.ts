@@ -142,10 +142,13 @@ export const date: Decoder<Date> = (input: unknown) => {
  * @param decoder a decoder
  */
 export const at = <T>(
-  path: Array<string | number> | string,
+  path: Array<string | number> | string | number,
   decoder: Decoder<T>,
 ): Decoder<T> => (input: unknown) => {
   try {
+    if (typeof path === "string" || typeof path === "number") {
+      return decoder((input as any)[path]);
+    }
     if (path.length) {
       return at(path.slice(1), decoder)((input as any)[path[0]]);
     }
