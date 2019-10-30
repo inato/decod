@@ -61,9 +61,11 @@ export const string: Decoder<string> = (input: unknown) => {
  * @description decode an unknown value as a string
  * @param input an unknown value
  */
-export const is = <T>(expectedValue: T): Decoder<T> => (input: unknown) => {
+export const is = <T extends string | number | boolean | null | undefined>(
+  expectedValue: T,
+): Decoder<T> => (input: unknown) => {
   if (input === expectedValue) {
-    return input as any;
+    return expectedValue;
   }
   throw new StrictDecoderError(expectedValue, input);
 };
@@ -142,16 +144,25 @@ export const date: Decoder<Date> = (input: unknown) => {
  * @param decoder a decoder
  */
 export const at = <T>(
-  path: Array<string | number> | string,
+  path: Array<string | number> | string | number,
   decoder: Decoder<T>,
 ): Decoder<T> => (input: unknown) => {
   try {
+    if (typeof path === "string" || typeof path === "number") {
+      return decoder((input as any)[path]);
+    }
+
     if (path.length) {
       return at(path.slice(1), decoder)((input as any)[path[0]]);
     }
   } catch (e) {
+    if (typeof path === "string" || typeof path === "number") {
+      throw new AtDecoderError(path, e);
+    }
+
     throw new AtDecoderError(path[0], e);
   }
+
   return decoder(input);
 };
 

@@ -4,7 +4,8 @@
   "jsRules": {},
   "rules": {
     "variable-name": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "object-literal-sort-keys": false
   },
   "rulesDirectory": []
 }
