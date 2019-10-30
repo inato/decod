@@ -12,6 +12,7 @@
     "build:umd": "tsc -b tsconfig.umd.json",
     "build:esm": "tsc -b tsconfig.esm.json",
     "clean": "rimraf lib",
+    "docs:generate": "typedoc --out docs --tsconfig ./tsconfig.esm.json --ignoreCompilerErrors --exclude \"**/*.test.ts,**/index.ts\"",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "husky": {
@@ -58,6 +59,7 @@
     "ts-jest": "^24.1.0",
     "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
+    "typedoc": "^0.15.0",
     "typescript": "^3.6.4"
   },
   "sideEffects": false
