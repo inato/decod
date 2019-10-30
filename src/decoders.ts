@@ -63,7 +63,7 @@ export const string: Decoder<string> = (input: unknown) => {
  */
 export const is = <T>(expectedValue: T): Decoder<T> => (input: unknown) => {
   if (input === expectedValue) {
-    return input as any;
+    return expectedValue;
   }
   throw new StrictDecoderError(expectedValue, input);
 };
