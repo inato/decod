@@ -1,0 +1,366 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>decod</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">decod</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> decod</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#decod" id="decod" style="color: inherit; text-decoration: none;">
+					<h1>decod</h1>
+				</a>
+				<p>Decode <code>unknown</code> values into well-typed Typescript ones.</p>
+				<a href="#what" id="what" style="color: inherit; text-decoration: none;">
+					<h2>What</h2>
+				</a>
+				<p>This is heavily inspired by bs-json, a Bucklescript module to decode JSON values and will provide you type-safe with low overhead input validation and typing by using the recently added <code>unknown</code> type.</p>
+				<a href="#why" id="why" style="color: inherit; text-decoration: none;">
+					<h2>Why</h2>
+				</a>
+				<p>Typescript is great since you can add lightweight static typing to your node.js or web application.
+				If you follow strict guidelines you should be able to crush runtime exceptions down to 0.</p>
+				<p>A common problem is that you often work with external services exchanging JSON and you might be tempted to statically cast those arbitrary JSON values from the outer world from <code>any</code> to an interface definition of your choice.
+				Great! But what happens when this input, for whatever reason, differs slightly from the expected payload?</p>
+				<ul>
+					<li>The best case scenario would probably be a quick crash, but then it will be painful the read the error stacktrace to pinpoint exactly what went wrong.</li>
+					<li>But in the worst case, and I bet this might have already happened to you, you insert inconsistent data into your database.</li>
+				</ul>
+				<a href="#how" id="how" style="color: inherit; text-decoration: none;">
+					<h2>How</h2>
+				</a>
+				<p>Leveraging the power of Typescript and the <code>unknown</code> type, it is possible to validate and strongly type any uncertain value, at the same time!</p>
+				<p>Let say you call a third party REST API</p>
+				<a href="#before" id="before" style="color: inherit; text-decoration: none;">
+					<h3>Before</h3>
+				</a>
+				<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> IResult {
+  id: <span class="hljs-built_in">string</span>;
+  user: IUser;
+}
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">interface</span> IUser {
+  firstName: <span class="hljs-built_in">string</span>;
+  comments: <span class="hljs-built_in">string</span>[];
+  email: <span class="hljs-built_in">string</span> | <span class="hljs-literal">null</span>;
+  age?: <span class="hljs-built_in">number</span>;
+  isCool: <span class="hljs-built_in">boolean</span>;
+}
+
+<span class="hljs-keyword">const</span> result: IResult = <span class="hljs-keyword">await</span> <span class="hljs-keyword">get</span>(<span class="hljs-string">"https://cool.com/api"</span>);</code></pre>
+				<p>Great, you typed your input reading the API doc, but what happens when the API slightly change, or if the developer made an error describing their APIs?</p>
+				<a href="#after" id="after" style="color: inherit; text-decoration: none;">
+					<h3>After</h3>
+				</a>
+				<pre><code class="language-ts"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> decod <span class="hljs-keyword">from</span> <span class="hljs-string">"decod"</span>;
+
+<span class="hljs-keyword">const</span> userDecoder = decod.props({
+  firstName: decod.at(<span class="hljs-string">"firstName"</span>, decod.string),
+  comments: decod.at(<span class="hljs-string">"comments"</span>, decod.array(decod.string)),
+  email: decod.at(<span class="hljs-string">"email"</span>, decod.nullable(decod.string)),
+  age: decod.at(<span class="hljs-string">"age"</span>, decod.optional(decod.number)),
+  isCool: decod.at(<span class="hljs-string">"isCool"</span>, decod.bool),
+});
+
+<span class="hljs-keyword">const</span> resultDecoder = decod.props({
+  id: decod.at(<span class="hljs-string">"id"</span>, decod.string),
+  user: decod.at(<span class="hljs-string">"user"</span>, userDecoder),
+});
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> TResult = ReturnType&lt;<span class="hljs-keyword">typeof</span> resultDecoder&gt;;
+
+<span class="hljs-keyword">const</span> result = resultDecoder(<span class="hljs-keyword">await</span> <span class="hljs-keyword">get</span>(<span class="hljs-string">"https://cool.com/api"</span>));</code></pre>
+				<a href="#api" id="api" style="color: inherit; text-decoration: none;">
+					<h2>API</h2>
+				</a>
+				<a href="#primitive-decoders" id="primitive-decoders" style="color: inherit; text-decoration: none;">
+					<h3>Primitive decoders</h3>
+				</a>
+				<p>The most basic blocks of decod are the primitive decoders. These just basically assert that the type of the <code>unknown</code> input you provide them is what you expect. If it is, you end up with your initial input value except now, as far as the typescript compiler is concerned, it&#39;s well-typed and not <code>unknown</code> anymore. If it fails though, it will throw a <code>ScalarDecoderError</code> (or a <code>StrictDecoderError</code> for <code>decod.is</code>) with nice information on the type (or value) you expected and the actual value you tried to decode.</p>
+				<ul>
+					<li><code>decod.number</code></li>
+					<li><code>decod.string</code></li>
+					<li><code>decod.boolean</code></li>
+					<li><code>decod.null_</code></li>
+					<li><code>decod.undefined_</code></li>
+					<li><code>decod.date</code></li>
+					<li><code>decod.is</code></li>
+				</ul>
+				<p>Among those, <code>decod.is</code> is kinda special in that it checks that the input value not only matches the type you expect but also its actual value. Not that in order to do that, it only accepts values of primitive types (<code>string</code>, <code>number</code>, <code>boolean</code>, <code>null</code> or <code>undefined</code>) otherwise it would need to perform deep equality in case of complex objects or arrays.</p>
+				<p>It&#39;s most often used in conjunction with <code>decod.oneOf</code> to decode string enums for example:</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">type</span> Droid = <span class="hljs-string">"r2d2"</span> | <span class="hljs-string">"c3po"</span>;
+<span class="hljs-keyword">const</span> droidDecoder = decod.oneOf(decod.is(<span class="hljs-string">"r2d2"</span>), decod.is(<span class="hljs-string">"c3po"</span>));</code></pre>
+				<p>Be careful, although in this case <code>droidDecoder</code> will fail if its input is anything other than <code>r2d2</code> or <code>c3po</code>, typescript won&#39;t consider the result to be as strictly typed as you might want. If you want the typescript compiler to infer that <code>droidDecoder</code> should have the type <code>Decoder&lt;Droid&gt;</code> instead of simply <code>Decoder&lt;string&gt;</code>, you have to either explicitly write that declaration or mark the arguments to <code>decode.is</code> with <code>as const</code>.</p>
+				<pre><code class="language-ts"><span class="hljs-comment">// Explicit typing</span>
+<span class="hljs-keyword">const</span> droidDecoder: Decoder&lt;Droid&gt; = decod.oneOf(
+  decod.is(<span class="hljs-string">"r2d2"</span>),
+  decod.is(<span class="hljs-string">"c3po"</span>),
+);
+
+<span class="hljs-comment">// `as const` declarations</span>
+<span class="hljs-keyword">const</span> droidDecoder = decod.oneOf(
+  decod.is(<span class="hljs-string">"r2d2"</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>),
+  decod.is(<span class="hljs-string">"c3po"</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>),
+);</code></pre>
+				<a href="#decoder-combinators" id="decoder-combinators" style="color: inherit; text-decoration: none;">
+					<h3>Decoder combinators</h3>
+				</a>
+				<p>Decoding primitive values is nice and all but it&#39;s pretty rare to want to decode some JSON that&#39;s just one scalar value. Thankfully, decod provides some nice combinators that allows you to build more complex decoders. We&#39;ll go into some more details about each of those.</p>
+				<a href="#codedecodoneofcode" id="codedecodoneofcode" style="color: inherit; text-decoration: none;">
+					<h4><code>decod.oneOf</code></h4>
+				</a>
+				<p>We&#39;ve already seen an example of <code>decod.oneOf</code>. It&#39;s behaviour is pretty straightforward, it just takes as arguments an arbitrary number of decoders (primitive or compound ones), trys them all in order and stops at the first one that succeeds. If none of them does, it throws a <code>OneOfDecoderError</code>.
+				For example, primitive decoders are strict, meaning they don&#39;t allow <code>null</code> or <code>undefined</code> values. <code>decod.oneOf</code> lets us define nullable decoders from primitive ones. In fact, that is exactly how <code>decod.nullable</code> is implemented! There is no magic to it.</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">const</span> nullable = <span class="hljs-function">(<span class="hljs-params">decoder: Decoder&lt;T&gt;</span>) =&gt;</span> decod.oneOf(decoder, decod.null_);
+<span class="hljs-keyword">const</span> nullableString = nullable(decod.string);</code></pre>
+				<a href="#codedecodnullablecode-and-codedecodoptionalcode" id="codedecodnullablecode-and-codedecodoptionalcode" style="color: inherit; text-decoration: none;">
+					<h4><code>decod.nullable</code> and <code>decod.optional</code></h4>
+				</a>
+				<p>Just like we saw, decod already provides for you <code>decod.nullable</code> that will transform any <code>Decoder&lt;T&gt;</code> into a <code>Decoder&lt;T | null&gt;</code>. It also provides <code>decod.optional</code> that transforms a <code>Decoder&lt;T&gt;</code> into a <code>Decoder&lt;T | null | undefined&gt;</code>.</p>
+				<a href="#codedecodarraycode" id="codedecodarraycode" style="color: inherit; text-decoration: none;">
+					<h4><code>decod.array</code></h4>
+				</a>
+				<p>Another useful decoder transformer is <code>decod.array</code> that will transform a <code>Decoder&lt;T&gt;</code> into a <code>Decoder&lt;Array&lt;T&gt;&gt;</code>.</p>
+				<a href="#codedecodattemptcode-and-codedecodtry_code" id="codedecodattemptcode-and-codedecodtry_code" style="color: inherit; text-decoration: none;">
+					<h4><code>decod.attempt</code> and <code>decod.try_</code></h4>
+				</a>
+				<p>Sometimes, you just want to try to decode something, but if it fails for some reason, have it recover with a default value. That&#39;s what <code>decod.try_</code> and <code>decod.attempt</code> do (they really are just synonyms of each other).
+				They accept any decoder for a type <code>T</code> alongside an optional default value of type <code>T</code>. If the decoder fails the input will decode to either <code>undefined</code> (if no default value is provided) or the provided default value instead of throwing.</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">const</span> lenientStringDecoder = decod.attempt(decod.string);
+<span class="hljs-keyword">const</span> lenientStringDecoderWithDefault = decod.try_(decod.string, <span class="hljs-string">""</span>);</code></pre>
+				<a href="#codedecodassoccode" id="codedecodassoccode" style="color: inherit; text-decoration: none;">
+					<h4><code>decod.assoc</code></h4>
+				</a>
+				<p>When you want to decode some JSON with dynamically generated keys, you might not know in advance which of those keys you&#39;re interested in. For those cases, <code>decod.assoc</code> takes two decoders, one for the keys (<code>Decoder&lt;K&gt;</code>) and one for the values (<code>Decoder&lt;V&gt;</code>) and returns a structure containing those key/value pairs <code>Decoder&lt;Array&lt;{ key: K, value: V }&gt;&gt;</code>.</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">const</span> dynamicJSON = <span class="hljs-string">`{
+  "key1": 42,
+  "key2": 1337,
+  "key128": 0
+}`</span>;
+
+<span class="hljs-keyword">const</span> kvDecoder = decod.assoc(decod.string, decod.number);
+<span class="hljs-keyword">const</span> kvs = kvDecoder(<span class="hljs-built_in">JSON</span>.parse(dynamicJSON));
+<span class="hljs-comment">// =&gt; kvs will have value:</span>
+<span class="hljs-comment">//    [</span>
+<span class="hljs-comment">//      { key: 'key1', value: 42 },</span>
+<span class="hljs-comment">//      { key: 'key2', value: 1337 },</span>
+<span class="hljs-comment">//      { key: 'key128', value: 0 }</span>
+<span class="hljs-comment">//    ]</span></code></pre>
+				<a href="#codedecodatcode" id="codedecodatcode" style="color: inherit; text-decoration: none;">
+					<h4><code>decod.at</code></h4>
+				</a>
+				<p>JSON is an inherently hierarchical data format. Most of the time, you&#39;ll want to decode a specific field into some well-typed value. And sometimes, that field will be arbitrarily nested in the hierarchy. That&#39;s precisely what <code>decod.at</code> will help you with. It can take various kind of arguments:</p>
+				<ul>
+					<li>a <code>string</code> in case you want to access a top level field</li>
+					<li>a <code>number</code> for when you want to index a specific value from a JSON array</li>
+					<li>an <code>Array&lt;string | number&gt;</code> when you search for a deeply nested field</li>
+				</ul>
+				<pre><code class="language-ts"><span class="hljs-keyword">const</span> someJSON = <span class="hljs-string">`{
+  "movie": "Star Wars",
+  "director": {
+    "first_name": "George",
+    "last_name": "Lucas"
+  },
+  "droids": [
+    "r2d2",
+    "c3po"
+  ]
+}`</span>;
+
+<span class="hljs-comment">// Top level field</span>
+<span class="hljs-keyword">const</span> movieDecoder = decod.at(<span class="hljs-string">"movie"</span>, decod.string);
+
+<span class="hljs-comment">// Nested Field</span>
+<span class="hljs-keyword">const</span> directorLastNameDecoder = decod.at(
+  [<span class="hljs-string">"director"</span>, <span class="hljs-string">"last_name"</span>],
+  decod.string,
+);
+
+<span class="hljs-comment">// Array index</span>
+<span class="hljs-keyword">const</span> r2d2Decoder = decod.at([<span class="hljs-string">"droids"</span>, <span class="hljs-number">0</span>], decod.is(<span class="hljs-string">"r2d2"</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>));
+
+<span class="hljs-keyword">const</span> movie = movieDecoder(<span class="hljs-built_in">JSON</span>.parse(someJSON));
+<span class="hljs-keyword">const</span> directorLastName = directorLastNameDecoder(<span class="hljs-built_in">JSON</span>.parse(someJSON));
+<span class="hljs-keyword">const</span> r2d2 = r2d2Decoder(<span class="hljs-built_in">JSON</span>.parse(someJSON));</code></pre>
+				<a href="#codedecodpropscode" id="codedecodpropscode" style="color: inherit; text-decoration: none;">
+					<h4><code>decod.props</code></h4>
+				</a>
+				<p>This is, hands down, the most useful combinator of all. That&#39;s why it is the one showcased in the overview at the top of this documentation.
+				<code>decod.props</code> will let you declare the structure you want to decode into, associating each field with the decoder for that field.</p>
+				<p>Let&#39;s say you want to decode the JSON structure shown above into the following interface:</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">type</span> Droid = <span class="hljs-string">"r2d2"</span> | <span class="hljs-string">"c3po"</span>;
+
+<span class="hljs-keyword">interface</span> StarWars {
+  movie: <span class="hljs-built_in">string</span>;
+  director: <span class="hljs-built_in">string</span>;
+  droids?: <span class="hljs-built_in">Array</span>&lt;Droid&gt;;
+}</code></pre>
+				<p>This is how you would do it, using <code>decod.props</code>:</p>
+				<pre><code class="language-ts"><span class="hljs-keyword">const</span> droidDecoder = decod.oneOf(
+  decod.is(<span class="hljs-string">"r2d2"</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>),
+  decod.is(<span class="hljs-string">"c3po"</span> <span class="hljs-keyword">as</span> <span class="hljs-keyword">const</span>),
+);
+
+<span class="hljs-keyword">const</span> directorDecoder = <span class="hljs-function">(<span class="hljs-params">input: unknown</span>) =&gt;</span> {
+  <span class="hljs-keyword">const</span> firstName = decod.at(<span class="hljs-string">"first_name"</span>, decod.string);
+  <span class="hljs-keyword">const</span> lastName = decod.at(<span class="hljs-string">"last_name"</span>, decod.string);
+
+  <span class="hljs-keyword">return</span> <span class="hljs-string">`<span class="hljs-subst">${firstName}</span> <span class="hljs-subst">${lastName}</span>`</span>;
+};
+
+<span class="hljs-keyword">const</span> starWarsDecoder = decod.props({
+  movie: decod.at(<span class="hljs-string">"movie"</span>, decod.string),
+  director: decod.at(<span class="hljs-string">"director"</span>, directorDecoder),
+  droids: decod.at(<span class="hljs-string">"droid"</span>, decod.array(droidDecoder)),
+});</code></pre>
+				<p>See what we did here? We even created our own custom compound decoder in <code>directorDecoder</code>! Remember that a <code>Decoder&lt;T&gt;</code> is really just an alias for a function type <code>(input: unknown) =&gt; T</code>.
+				As long as you respect that contract, you can use any of your own functions from <code>unknown</code> to any arbitrary <code>T</code> as decoders in your combinators.</p>
+				<p><em>Please note that this is just a toy example. In a real life application, you would want to catch any exception in your custom decoder to either recover from it or throw a more meaningfull error that will help you identify failures down the line.</em></p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_decoders_.html">"decoders"</a>
+					</li>
+					<li class=" tsd-kind-external-module">
+						<a href="modules/_errors_.html">"errors"</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>
