@@ -151,12 +151,18 @@ export const at = <T>(
     if (typeof path === "string" || typeof path === "number") {
       return decoder((input as any)[path]);
     }
+
     if (path.length) {
       return at(path.slice(1), decoder)((input as any)[path[0]]);
     }
   } catch (e) {
+    if (typeof path === "string" || typeof path === "number") {
+      throw new AtDecoderError(path, e);
+    }
+
     throw new AtDecoderError(path[0], e);
   }
+
   return decoder(input);
 };
 
