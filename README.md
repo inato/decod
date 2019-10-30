@@ -81,7 +81,9 @@ The most basic blocks of decod are the primitive decoders. These just basically 
 - `decod.date`
 - `decod.is`
 
-Among those, `decod.is` is kinda special in that it checks that the input value not only matches the type you expect but also its actual value. It's most often used in conjunction with `decod.oneOf` to decode string enums for example:
+Among those, `decod.is` is kinda special in that it checks that the input value not only matches the type you expect but also its actual value. Not that in order to do that, it only accepts values of primitive types (`string`, `number`, `boolean`, `null` or `undefined`) otherwise it would need to perform deep equality in case of complex objects or arrays.
+
+It's most often used in conjunction with `decod.oneOf` to decode string enums for example:
 
 ```ts
 type Droid = "r2d2" | "c3po";

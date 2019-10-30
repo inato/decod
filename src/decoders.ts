@@ -61,7 +61,9 @@ export const string: Decoder<string> = (input: unknown) => {
  * @description decode an unknown value as a string
  * @param input an unknown value
  */
-export const is = <T>(expectedValue: T): Decoder<T> => (input: unknown) => {
+export const is = <T extends string | number | boolean | null | undefined>(
+  expectedValue: T,
+): Decoder<T> => (input: unknown) => {
   if (input === expectedValue) {
     return expectedValue;
   }
