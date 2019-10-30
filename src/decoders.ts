@@ -7,12 +7,18 @@ import {
   StrictDecoderError,
 } from "./errors";
 
-type Decoder<T> = (input: unknown) => T;
+export type Decoder<T> = (input: unknown) => T;
 
 /**
- * @description Try all the given decoders and return the result of the first one not raising an error
- * @param lDecoder the first decoder
- * @param rDecoder the second decoder
+ * Try all the given decoders and return the result of the first one not raising an error.
+ * If none succeed, throws a {@link OneOfDecoderError}
+ *
+ * For example, this is how nullable is defined:
+ * ```ts
+ * const nullable = <T>(decoder: Decoder<T>) => decod.oneOf(decoder, decod.null_);
+ * ```
+ *
+ * @category Decoder combinators
  */
 // prettier-ignore
 export function oneOf<D1>(d1: Decoder<D1>): Decoder<D1>;
@@ -47,8 +53,10 @@ export function oneOf<T>(...decoders: Array<Decoder<T>>) {
 }
 
 /**
- * @description decode an unknown value as a string
- * @param input an unknown value
+ * Decode an `unknown` value as a `string`.
+ * Otherwise, throws a {@link ScalarDecoderError}.
+ *
+ * @category Primitive decoders
  */
 export const string: Decoder<string> = (input: unknown) => {
   if (typeof input === "string") {
@@ -58,8 +66,19 @@ export const string: Decoder<string> = (input: unknown) => {
 };
 
 /**
- * @description decode an unknown value as a string
- * @param input an unknown value
+ * Decode an `unknown` value if it matches the expected value.
+ * Otherwise, throws a {@link ScalarDecoderError}.
+ *
+ * It is mostly intended to be used in conjunction with {@link oneOf} for decoding groups of specific values.
+ *
+ * ```ts
+ * const droidDecoder = decod.oneOf(
+ *   decod.is('r2d2'),
+ *   decod.is('c3po')
+ * );
+ * ```
+ *
+ * @category Primitive decoders
  */
 export const is = <T extends string | number | boolean | null | undefined>(
   expectedValue: T,
@@ -71,8 +90,10 @@ export const is = <T extends string | number | boolean | null | undefined>(
 };
 
 /**
- * @description decode an unknown value as a number
- * @param input an unknown value
+ * Decode an `unknown` value as a `number`.
+ * Otherwise, throws a {@link ScalarDecoderError}.
+ *
+ * @category Primitive decoders
  */
 export const number: Decoder<number> = (input: unknown) => {
   if (typeof input === "number") {
@@ -82,8 +103,10 @@ export const number: Decoder<number> = (input: unknown) => {
 };
 
 /**
- * @description decode an unknown value as null
- * @param input an unknown value
+ * Decode an `unknown` value as a `null` value.
+ * Otherwise, throws a {@link ScalarDecoderError}.
+ *
+ * @category Primitive decoders
  */
 export const null_: Decoder<null> = (input: unknown) => {
   if (input === null) {
@@ -93,8 +116,10 @@ export const null_: Decoder<null> = (input: unknown) => {
 };
 
 /**
- * @description decode an unknown value as undefined
- * @param input an unknown value
+ * Decode an `unknown` value as `undefined`.
+ * Otherwise, throws a {@link ScalarDecoderError}.
+ *
+ * @category Primitive decoders
  */
 export const undefined_: Decoder<undefined> = (input: unknown) => {
   if (typeof input === "undefined") {
@@ -104,21 +129,25 @@ export const undefined_: Decoder<undefined> = (input: unknown) => {
 };
 
 /**
- * @description decode an unknown value as T, undefined or null
- * @param input an unknown value
+ * Transform a `Decoder<T>` into a `Decoder<T | null | undefined>`.
+ *
+ * @category Decoder combinators
  */
 export const optional = <T>(decoder: Decoder<T>) =>
   oneOf(decoder, null_, undefined_);
 
 /**
- * @description decode an unknown value as T or null
- * @param input an unknown value
+ * Transform a `Decoder<T>` into a `Decoder<T | null>`.
+ *
+ * @category Decoder combinators
  */
 export const nullable = <T>(decoder: Decoder<T>) => oneOf(decoder, null_);
 
 /**
- * @description decode an unknown value as boolean
- * @param input an unknown value
+ * Decode an `unknown` value as a `boolean`.
+ * Otherwise, throws a {@link ScalarDecoderError}.
+ *
+ * @category Primitive decoders
  */
 export const boolean: Decoder<boolean> = (input: unknown) => {
   if (typeof input === "boolean") {
@@ -128,8 +157,10 @@ export const boolean: Decoder<boolean> = (input: unknown) => {
 };
 
 /**
- * @description decode an unknown value as Date
- * @param input an unknown value
+ * Decode an `unknown` value as a `Date`.
+ * Otherwise, throws a {@link ScalarDecoderError}.
+ *
+ * @category Primitive decoders
  */
 export const date: Decoder<Date> = (input: unknown) => {
   if (input instanceof Date) {
@@ -139,9 +170,13 @@ export const date: Decoder<Date> = (input: unknown) => {
 };
 
 /**
- * @description decode an unknown value an object path
- * @param path a string array
- * @param decoder a decoder
+ * Apply the provided decoder at the specified path in a complex object.
+ * Path can be either:
+ * - a `string` (when querying a top level field)
+ * - a `number` (when querying an array index)
+ * - an `Array<string | number>` (to query an arbitrarily nested field)
+ *
+ * @category Decoder combinators
  */
 export const at = <T>(
   path: Array<string | number> | string | number,
@@ -167,8 +202,9 @@ export const at = <T>(
 };
 
 /**
- * @description decode an unknown value an array
- * @param decoder a decoder
+ * Transform a `Decoder<T>` into a `Decoder<Array<T>>`.
+ *
+ * @category Decoder combinators
  */
 export const array = <T>(decoder: Decoder<T>): Decoder<T[]> => (
   input: unknown,
@@ -186,8 +222,10 @@ export const array = <T>(decoder: Decoder<T>): Decoder<T[]> => (
 };
 
 /**
- * @description decode an unknown value an array
- * @param decoder a decoder
+ * Try a decoder, and fallback to a specified value (if provided) if the decoder fails.
+ * If no default value is specified, fallback to `undefined`.
+ *
+ * @category Decoder combinators
  */
 export function try_<T>(decoder: Decoder<T>): Decoder<T | undefined>;
 export function try_<T>(decoder: Decoder<T>, defaultValue: T): Decoder<T>;
@@ -195,8 +233,19 @@ export function try_<T>(decoder: Decoder<T>, defaultValue?: any): Decoder<T> {
   return oneOf(decoder, (_: unknown) => defaultValue);
 }
 
+/**
+ * Synonim for {@link try_}
+ *
+ * @category Decoder combinators
+ */
 export const attempt = try_;
 
+/**
+ * Create a decoder for arbitrary key/value pairs from a key decoder and a value decoder.
+ * Effectively transforms a `Decoder<K>` and a `Decoder<V>` into a `Decoder<Array<{ key: K, value: V }>>`.
+ *
+ * @category Decoder combinators
+ */
 export const assoc = <K, V, T extends { [key: string]: unknown }>(
   keyDecoder: Decoder<K>,
   valueDecoder: Decoder<V>,
@@ -207,9 +256,18 @@ export const assoc = <K, V, T extends { [key: string]: unknown }>(
   }));
 
 /**
- * @description a helper to decode objects
- * @param obj an object with decoders as values
- * @param input
+ * Create a decoder for some complex structure from an object where each value is a `Decoder` and the keys
+ * correspond to the desired output structure.
+ *
+ * ```ts
+ * const personDecoder = decod.props({
+ *   first_name: decod.at('first_name', decod.string),
+ *   last_name: decod.at('last_name', decod.string),
+ *   age: decod.at('age', decod.number),
+ * });
+ * ```
+ *
+ * @category Decoder combinators
  */
 export const props = <T extends { [key: string]: Decoder<any> }>(obj: T) => (
   input: unknown,
