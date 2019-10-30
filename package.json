@@ -49,16 +49,16 @@
   },
   "homepage": "https://github.com/inato/decod#readme",
   "devDependencies": {
-    "@types/jest": "^24.0.13",
-    "husky": "^2.3.0",
-    "jest": "^24.8.0",
-    "lint-staged": "^8.1.7",
-    "prettier": "^1.17.1",
-    "rimraf": "^2.6.3",
-    "ts-jest": "^24.0.2",
-    "tslint": "^5.16.0",
+    "@types/jest": "^24.0.21",
+    "husky": "^3.0.9",
+    "jest": "^24.9.0",
+    "lint-staged": "^9.4.2",
+    "prettier": "^1.18.2",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.1.0",
+    "tslint": "^5.20.0",
     "tslint-config-prettier": "^1.18.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.6.4"
   },
   "sideEffects": false
 }
