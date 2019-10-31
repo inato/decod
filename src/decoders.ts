@@ -235,7 +235,7 @@ export function try_<T>(decoder: Decoder<T>, defaultValue?: any): Decoder<T> {
 
 /**
  * Synonym for {@link try_}
- *x
+ *
  * @category Decoder combinators
  */
 export const attempt = try_;
