@@ -1,0 +1,17 @@
+{
+  "eslint.autoFixOnSave": true,
+  "eslint.workingDirectories": ["./src"],
+  "eslint.validate": [
+    {
+      "language": "typescript",
+      "autoFix": true
+    }
+  ],
+  "search.exclude": {
+    "**/node_modules": true
+  },
+  "eslint.packageManager": "npm",
+  "eslint.alwaysShowStatus": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "javascript.validate.enable": false
+}

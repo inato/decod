@@ -6,7 +6,7 @@ export {
   PropsDecoderError,
   ScalarDecoderError,
   StrictDecoderError,
-} from "./errors";
+} from './errors';
 
 export {
   array,
@@ -25,4 +25,4 @@ export {
   string,
   try_,
   undefined_,
-} from "./decoders";
+} from './decoders';
