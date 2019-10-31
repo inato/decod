@@ -5,7 +5,7 @@ import {
   PropsDecoderError,
   ScalarDecoderError,
   StrictDecoderError,
-} from "./errors";
+} from './errors';
 
 export type Decoder<T> = (input: unknown) => T;
 
@@ -59,10 +59,10 @@ export function oneOf<T>(...decoders: Array<Decoder<T>>) {
  * @category Primitive decoders
  */
 export const string: Decoder<string> = (input: unknown) => {
-  if (typeof input === "string") {
+  if (typeof input === 'string') {
     return input;
   }
-  throw new ScalarDecoderError("string", input);
+  throw new ScalarDecoderError('string', input);
 };
 
 /**
@@ -96,10 +96,10 @@ export const is = <T extends string | number | boolean | null | undefined>(
  * @category Primitive decoders
  */
 export const number: Decoder<number> = (input: unknown) => {
-  if (typeof input === "number") {
+  if (typeof input === 'number') {
     return input;
   }
-  throw new ScalarDecoderError("number", input);
+  throw new ScalarDecoderError('number', input);
 };
 
 /**
@@ -112,7 +112,7 @@ export const null_: Decoder<null> = (input: unknown) => {
   if (input === null) {
     return input as null;
   }
-  throw new ScalarDecoderError("null", input);
+  throw new ScalarDecoderError('null', input);
 };
 
 /**
@@ -122,10 +122,10 @@ export const null_: Decoder<null> = (input: unknown) => {
  * @category Primitive decoders
  */
 export const undefined_: Decoder<undefined> = (input: unknown) => {
-  if (typeof input === "undefined") {
+  if (typeof input === 'undefined') {
     return input;
   }
-  throw new ScalarDecoderError("undefined", input);
+  throw new ScalarDecoderError('undefined', input);
 };
 
 /**
@@ -150,10 +150,10 @@ export const nullable = <T>(decoder: Decoder<T>) => oneOf(decoder, null_);
  * @category Primitive decoders
  */
 export const boolean: Decoder<boolean> = (input: unknown) => {
-  if (typeof input === "boolean") {
+  if (typeof input === 'boolean') {
     return input;
   }
-  throw new ScalarDecoderError("boolean", input);
+  throw new ScalarDecoderError('boolean', input);
 };
 
 /**
@@ -166,7 +166,7 @@ export const date: Decoder<Date> = (input: unknown) => {
   if (input instanceof Date) {
     return input;
   }
-  throw new ScalarDecoderError("Date", input);
+  throw new ScalarDecoderError('Date', input);
 };
 
 /**
@@ -183,7 +183,7 @@ export const at = <T>(
   decoder: Decoder<T>,
 ): Decoder<T> => (input: unknown) => {
   try {
-    if (typeof path === "string" || typeof path === "number") {
+    if (typeof path === 'string' || typeof path === 'number') {
       return decoder((input as any)[path]);
     }
 
@@ -191,7 +191,7 @@ export const at = <T>(
       return at(path.slice(1), decoder)((input as any)[path[0]]);
     }
   } catch (e) {
-    if (typeof path === "string" || typeof path === "number") {
+    if (typeof path === 'string' || typeof path === 'number') {
       throw new AtDecoderError(path, e);
     }
 
@@ -218,7 +218,7 @@ export const array = <T>(decoder: Decoder<T>): Decoder<T[]> => (
       }
     });
   }
-  throw new ScalarDecoderError("array", input);
+  throw new ScalarDecoderError('array', input);
 };
 
 /**
@@ -235,7 +235,7 @@ export function try_<T>(decoder: Decoder<T>, defaultValue?: any): Decoder<T> {
 
 /**
  * Synonym for {@link try_}
- *
+ *x
  * @category Decoder combinators
  */
 export const attempt = try_;
