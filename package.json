@@ -12,7 +12,8 @@
     "build:umd": "tsc -b tsconfig.umd.json",
     "build:esm": "tsc -b tsconfig.esm.json",
     "clean": "rimraf lib",
-    "docs:generate": "typedoc --out docs --tsconfig ./tsconfig.esm.json --ignoreCompilerErrors --exclude \"**/*.test.ts,**/index.ts\" && cp config.yml docs/",
+    "docs": "typedoc --out docs --tsconfig ./tsconfig.esm.json --ignoreCompilerErrors --exclude \"**/*+(index|.test|.spec|.e2e).ts\" src/",
+    "postdocs": "cp jekyll.config.yml docs/config.yml && touch docs/.nojekyll",
     "prepublishOnly": "npm run clean && npm run build"
   },
   "husky": {
